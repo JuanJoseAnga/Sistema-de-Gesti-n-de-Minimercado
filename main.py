@@ -80,5 +80,67 @@ async def actualizar_registro_por_id(id_ingreso, ingreso_update: IngresoUpdate, 
 
 #Comit tuka
 
-#Commit Sebastian
+#PROVEEDORES 
+
+
+# NUEVO REGISTRO
+class ProveedorBase(BaseModel):
+    nombre: str
+    contacto: str
+    productos: str
+    condiciones_pago: str
+
+# ACTUALIZACION
+class ProveedorUpdate(BaseModel):
+    nombre: str
+    contacto: str
+    productos: str
+    condiciones_pago: str
+
+# Crear nuevo proveedor
+@app.post("/Registro proveedor/", status_code=status.HTTP_201_CREATED)
+async def crear_proveedor(proveedor: ProveedorBase, db: db_dependency):
+    db_proveedor = models.Ingreso_proveedor(**proveedor.dict())
+    db.add(db_proveedor)
+    db.commit()
+    return {"detail": "El proveedor se registró exitosamente"}
+
+# Listar todos los proveedores
+@app.get("/Listado de proveedores/", status_code=status.HTTP_200_OK)
+async def listar_proveedores(db: db_dependency):
+    proveedores = db.query(models.Ingreso_proveedor).all()
+    return proveedores
+
+# Consultar proveedor por ID
+@app.get("/Consultar proveedor/{id_proveedor}", status_code=status.HTTP_200_OK)
+async def consultar_proveedor_por_id(id_proveedor: int, db: db_dependency):
+    proveedor = db.query(models.Ingreso_proveedor).filter(models.Ingreso_proveedor.ID == id_proveedor).first()
+    if proveedor is None:
+        raise HTTPException(status_code=404, detail="Proveedor no encontrado")
+    return proveedor
+
+# Eliminar proveedor por ID
+@app.delete("/Eliminar proveedor/{id_proveedor}", status_code=status.HTTP_200_OK)
+async def eliminar_proveedor_por_id(id_proveedor: int, db: db_dependency):
+    proveedor_borrar = db.query(models.Ingreso_proveedor).filter(models.Ingreso_proveedor.ID == id_proveedor).first()
+    if proveedor_borrar is None:
+        raise HTTPException(status_code=404, detail="Proveedor no encontrado")
+    db.delete(proveedor_borrar)
+    db.commit()
+    return {"detail": "Proveedor eliminado exitosamente"}
+
+# Actualizar proveedor por ID
+@app.put("/Actualizar proveedor/{id_proveedor}", status_code=status.HTTP_200_OK)
+async def actualizar_proveedor_por_id(id_proveedor: int, proveedor_update: ProveedorUpdate, db: db_dependency):
+    proveedor = db.query(models.Ingreso_proveedor).filter(models.Ingreso_proveedor.ID == id_proveedor).first()
+    if proveedor is None:
+        raise HTTPException(status_code=404, detail="Proveedor no encontrado")
+
+    for key, value in proveedor_update.dict().items():
+        setattr(proveedor, key, value)
+
+    db.commit()
+    db.refresh(proveedor)
+    return proveedor
+
 
