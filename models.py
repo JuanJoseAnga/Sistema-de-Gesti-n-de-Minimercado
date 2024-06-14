@@ -17,3 +17,12 @@ class Ingreso_proveedor(Base):
     productos = Column(String(30))
     condiciones_pago = Column(String(30))
     ID = Column(Integer, primary_key=True, index=True)
+                
+#PRODUCTOS               
+class Producto(Base):
+    __tablename__ = 'productos'
+    id = Column(Integer, primary_key=True, index=True)
+    nombre = Column(String, nullable=False)
+    precio = Column(Float, nullable=False)
+    descripcion = Column(Text)
+    stock = Column(Integer, nullable=False)
