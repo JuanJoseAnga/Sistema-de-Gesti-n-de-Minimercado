@@ -1,4 +1,4 @@
-from sqlalchemy import String, Integer, Column
+from sqlalchemy import String, Integer, Column, Float, Text
 from database import Base 
 
 
@@ -21,9 +21,9 @@ class Ingreso_proveedor(Base):
                 
 #PRODUCTOS               
 class Producto(Base):
-    __tablename__ = 'productos'
+    __tablename__ ="productos"
     id = Column(Integer, primary_key=True, index=True)
-    nombre = Column(String, nullable=False)
-    precio = Column(Float, nullable=False)
+    nombre = Column(String(50))
+    precio = Column(Float)
     descripcion = Column(Text)
     stock = Column(Integer, nullable=False)
