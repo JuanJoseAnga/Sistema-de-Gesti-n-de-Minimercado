@@ -144,3 +144,82 @@ async def actualizar_proveedor_por_id(id_proveedor: int, proveedor_update: Prove
     return proveedor
 
 
+class ProductoBase(BaseModel):
+    nombre: str
+    precio: float
+    descripcion: str
+    stock: int
+
+class ProductoCreate(ProductoBase):
+    pass
+
+class ProductoUpdate(ProductoBase):
+    pass
+
+class ProductoInDB(ProductoBase):
+    id: int
+
+    class Config:
+        orm_mode = True
+
+# NUEVO REGISTRO
+class Producto(BaseModel):
+    nombre: str
+    contacto: str
+    productos: str
+    condiciones_pago: str
+
+# ACTUALIZACION
+class ProductoUpdate(BaseModel):
+    nombre: str
+    contacto: str
+    productos: str
+    condiciones_pago: str
+
+# Crear producto
+@app.post("/registro_producto/", status_code=status.HTTP_201_CREATED)
+async def crear_producto(producto: ProductoCreate, db: Session = Depends(get_db)):
+    db_producto = Producto(**producto.dict())
+    db.add(db_producto)
+    db.commit()
+    db.refresh(db_producto)
+    return {"detail": "El producto se registró exitosamente", "producto": db_producto}
+
+# Listar todos los productos
+@app.get("/listado_productos/", response_model=List[ProductoInDB], status_code=status.HTTP_200_OK)
+async def listar_productos(db: Session = Depends(get_db)):
+    productos = db.query(Producto).all()
+    return productos
+
+# Consultar producto por ID
+@app.get("/consultar_producto/{id_producto}", response_model=ProductoInDB, status_code=status.HTTP_200_OK)
+async def consultar_producto_por_id(id_producto: int, db: Session = Depends(get_db)):
+    producto = db.query(Producto).filter(Producto.id == id_producto).first()
+    if producto is None:
+        raise HTTPException(status_code=404, detail="Producto no encontrado")
+    return producto
+
+# Eliminar producto por ID
+@app.delete("/eliminar_producto/{id_producto}", status_code=status.HTTP_200_OK)
+async def eliminar_producto_por_id(id_producto: int, db: Session = Depends(get_db)):
+    producto_borrar = db.query(Producto).filter(Producto.id == id_producto).first()
+    if producto_borrar is None:
+        raise HTTPException(status_code=404, detail="Producto no encontrado")
+    db.delete(producto_borrar)
+    db.commit()
+    return {"detail": "Producto eliminado exitosamente"}
+
+# Actualizar producto por ID
+@app.put("/actualizar_producto/{id_producto}", response_model=ProductoInDB, status_code=status.HTTP_200_OK)
+async def actualizar_producto_por_id(id_producto: int, producto_update: ProductoUpdate, db: Session = Depends(get_db)):
+    producto = db.query(Producto).filter(Producto.id == id_producto).first()
+    if producto is None:
+        raise HTTPException(status_code=404, detail="Producto no encontrado")
+
+    for key, value in producto_update.dict().items():
+        setattr(producto, key, value)
+
+    db.commit()
+    db.refresh(producto)
+    return producto
+
