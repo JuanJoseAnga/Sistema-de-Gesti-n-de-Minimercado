@@ -78,6 +78,6 @@ async def actualizar_registro_por_id(id_ingreso, ingreso_update: IngresoUpdate, 
     db.refresh(registro)
     return registro
 
-
+#Comit tuka
 
 
