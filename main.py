@@ -12,6 +12,7 @@ class IngresoBase(BaseModel):
     nombre:str
     mail:str
     password:str
+    cargo:str
 
 #ACTUALIZACION
 class IngresoBase2(BaseModel):
@@ -19,6 +20,7 @@ class IngresoBase2(BaseModel):
     nombre:str
     mail:str
     password:str
+    cargo:str
 
 def get_db():
     db=SessionLocal()
@@ -63,6 +65,7 @@ class IngresoUpdate(BaseModel):
     nombre: str
     mail:str
     password:str
+    cargo:str
 
 @app.put("/actualizarregistro/{id_ingreso}", status_code=status.HTTP_200_OK)
 async def actualizar_registro_por_id(id_ingreso, ingreso_update: IngresoUpdate, db:db_dependency):
@@ -78,7 +81,6 @@ async def actualizar_registro_por_id(id_ingreso, ingreso_update: IngresoUpdate, 
     db.refresh(registro)
     return registro
 
-#Comit tuka
 
 #PROVEEDORES 
 
@@ -141,7 +143,7 @@ async def actualizar_proveedor_por_id(id_proveedor: int, proveedor_update: Prove
 
     db.commit()
     db.refresh(proveedor)
-    return proveedor
+    return proveedor
 
 
 class ProductoBase(BaseModel):

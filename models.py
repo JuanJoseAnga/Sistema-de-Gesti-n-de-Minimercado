@@ -8,6 +8,7 @@ class Ingreso(Base):
     nombre = Column(String(30))
     mail = Column(String(30))
     password = Column(String(30))
+    cargo = Column(String(30))
 
 #PROVEEDORES 
 class Ingreso_proveedor(Base):
@@ -16,7 +17,7 @@ class Ingreso_proveedor(Base):
     contacto = Column(String(30))
     productos = Column(String(30))
     condiciones_pago = Column(String(30))
-    ID = Column(Integer, primary_key=True, index=True)
+    ID = Column(Integer, primary_key=True, index=True)
                 
 #PRODUCTOS               
 class Producto(Base):
