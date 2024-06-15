@@ -12,7 +12,7 @@ class Ingreso(Base):
 
 #PROVEEDORES 
 class Ingreso_proveedor(Base):
-    _tablename_="proveedor"
+    __tablename__="proveedor"
     nombre = Column(String(30))
     contacto = Column(String(30))
     productos = Column(String(30))
