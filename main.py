@@ -12,6 +12,7 @@ class IngresoBase(BaseModel):
     nombre:str
     mail:str
     password:str
+    cargo:str
 
 #ACTUALIZACION
 class IngresoBase2(BaseModel):
@@ -19,6 +20,7 @@ class IngresoBase2(BaseModel):
     nombre:str
     mail:str
     password:str
+    cargo:str
 
 def get_db():
     db=SessionLocal()
@@ -63,6 +65,7 @@ class IngresoUpdate(BaseModel):
     nombre: str
     mail:str
     password:str
+    cargo:str
 
 @app.put("/actualizarregistro/{id_ingreso}", status_code=status.HTTP_200_OK)
 async def actualizar_registro_por_id(id_ingreso, ingreso_update: IngresoUpdate, db:db_dependency):
@@ -78,7 +81,6 @@ async def actualizar_registro_por_id(id_ingreso, ingreso_update: IngresoUpdate, 
     db.refresh(registro)
     return registro
 
-#Comit tuka
 
 #PROVEEDORES 
 
@@ -141,7 +143,7 @@ async def actualizar_proveedor_por_id(id_proveedor: int, proveedor_update: Prove
 
     db.commit()
     db.refresh(proveedor)
-    return proveedor
+    return proveedor
 
 
 #CLIENTES 
@@ -153,6 +155,19 @@ class ClienteBase(BaseModel):
     telefono: str
 
 class ClienteInDB(ClienteBase):
+class ProductoBase(BaseModel):
+    nombre: str
+    precio: float
+    descripcion: str
+    stock: int
+
+class ProductoCreate(ProductoBase):
+    pass
+
+class ProductoUpdate(ProductoBase):
+    pass
+
+class ProductoInDB(ProductoBase):
     id: int
 
     class Config:
@@ -210,3 +225,65 @@ async def actualizar_cliente_por_id(id_cliente: int, cliente_update: ClienteBase
 if _name_ == "_main_":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+# NUEVO REGISTRO
+class Producto(BaseModel):
+    NOMBRE: str
+    PRECIO: str
+    DESCRIPCION: str
+    STOCK: int
+
+# ACTUALIZACION
+class ProductoUpdate(BaseModel):
+    NOMBRE: str
+    PRECIO: str
+    DESCRIPCION: str
+    STOCK: int
+
+# Crear producto
+@app.post("/registro_producto/", status_code=status.HTTP_201_CREATED)
+async def crear_producto(producto: ProductoCreate, db: Session = Depends(get_db)):
+    db_producto = models.Producto(**producto.dict())
+    db.add(db_producto)
+    db.commit()
+    db.refresh(db_producto)
+    return {"detail": "El producto se registró exitosamente", "producto": db_producto}
+
+# Listar todos los productos
+@app.get("/listado_productos/", status_code=status.HTTP_200_OK)
+async def listar_productos(db: Session = Depends(get_db)):
+    productos = db.query(models.Producto).all()
+    return productos
+
+# Consultar producto por ID
+@app.get("/consultar_producto/{id_producto}", response_model=ProductoInDB, status_code=status.HTTP_200_OK)
+async def consultar_producto_por_id(id_producto: int, db: Session = Depends(get_db)):
+    producto = db.query(models.Producto).filter(models.Producto.id == id_producto).first()
+    if producto is None:
+        raise HTTPException(status_code=404, detail="Producto no encontrado")
+    return producto
+
+# Eliminar producto por ID
+@app.delete("/eliminar_producto/{id_producto}", status_code=status.HTTP_200_OK)
+async def eliminar_producto_por_id(id_producto: int, db: Session = Depends(get_db)):
+    producto_borrar = db.query(models.Producto).filter(models.Producto.id == id_producto).first()
+    if producto_borrar is None:
+        raise HTTPException(status_code=404, detail="Producto no encontrado")
+    db.delete(producto_borrar)
+    db.commit()
+    return {"detail": "Producto eliminado exitosamente"}
+
+# Actualizar producto por ID
+@app.put("/actualizar_producto/{id_producto}", response_model=ProductoInDB, status_code=status.HTTP_200_OK)
+async def actualizar_producto_por_id(id_producto: int, producto_update: ProductoBase, db: Session = Depends(get_db)):
+    producto = db.query(models.Producto).filter(models.Producto.id == id_producto).first()
+    if producto is None:
+        raise HTTPException(status_code=404, detail="Producto no encontrado")
+
+    # Actualizar los campos del producto
+    for key, value in producto_update.dict().items():
+        setattr(producto, key, value)
+
+    db.commit()
+    db.refresh(producto)
+    return producto
+
