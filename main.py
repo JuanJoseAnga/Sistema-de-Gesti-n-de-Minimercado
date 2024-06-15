@@ -144,3 +144,69 @@ async def actualizar_proveedor_por_id(id_proveedor: int, proveedor_update: Prove
     return proveedor
 
 
+#CLIENTES 
+
+class ClienteBase(BaseModel):
+    nombre: str
+    email: str
+    direccion: str
+    telefono: str
+
+class ClienteInDB(ClienteBase):
+    id: int
+
+    class Config:
+        orm_mode = True
+
+# Crear cliente
+@app.post("/crear_cliente/", status_code=status.HTTP_201_CREATED)
+async def crear_cliente(cliente: ClienteBase, db: db_dependency):
+    db_cliente = models.Cliente(**cliente.dict())
+    db.add(db_cliente)
+    db.commit()
+    db.refresh(db_cliente)
+    return "El cliente se registró exitosamente"
+
+# Listar todos los clientes
+@app.get("/listado_clientes/", status_code=status.HTTP_200_OK)
+async def listar_clientes(db: Session = Depends(get_db)):
+    clientes = db.query(models.Cliente).all()
+    return clientes
+
+# Consultar cliente por ID
+@app.get("/consultar_cliente/{id_cliente}", response_model=ClienteInDB, status_code=status.HTTP_200_OK)
+async def consultar_cliente_por_id(id_cliente: int, db: Session = Depends(get_db)):
+    cliente = db.query(models.Cliente).filter(models.Cliente.id == id_cliente).first()
+    if cliente is None:
+        raise HTTPException(status_code=404, detail="Cliente no encontrado")
+    return cliente
+
+# Eliminar cliente por ID
+@app.delete("/eliminar_cliente/{id_cliente}", status_code=status.HTTP_200_OK)
+async def eliminar_cliente_por_id(id_cliente: int, db: Session = Depends(get_db)):
+    cliente_borrar = db.query(models.Cliente).filter(models.Cliente.id == id_cliente).first()
+    if cliente_borrar is None:
+        raise HTTPException(status_code=404, detail="Cliente no encontrado")
+    db.delete(cliente_borrar)
+    db.commit()
+    return {"detail": "Cliente eliminado exitosamente"}
+
+# Actualizar cliente por ID
+@app.put("/actualizar_cliente/{id_cliente}", response_model=ClienteInDB, status_code=status.HTTP_200_OK)
+async def actualizar_cliente_por_id(id_cliente: int, cliente_update: ClienteBase, db: Session = Depends(get_db)):
+    cliente = db.query(models.Cliente).filter(models.Cliente.id == id_cliente).first()
+    if cliente is None:
+        raise HTTPException(status_code=404, detail="Cliente no encontrado")
+
+    # Actualizar los campos del cliente
+    for key, value in cliente_update.dict().items():
+        setattr(cliente, key, value)
+
+    db.commit()
+    db.refresh(cliente)
+    return cliente
+
+# Inicia la aplicación
+if _name_ == "_main_":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
