@@ -4,7 +4,7 @@ import schemas.usuario as schemas
 import models.usuario as models
 from database import SessionLocal, engine
 from utils import get_password_hash
-
+from typing import List
 router = APIRouter()
 
 def get_db():
@@ -37,7 +37,7 @@ async def consultar_registro(registro_id: int, db: Session = Depends(get_db)):
     return registro
 
 # Función para listar todos los registros
-@router.get("/registro/", response_model=list[schemas.IngresoBase])
+@router.get("/registro/", response_model=List[schemas.IngresoBase])
 async def listar_registros(db: Session = Depends(get_db)):
     return db.query(models.Ingreso).all()
 
