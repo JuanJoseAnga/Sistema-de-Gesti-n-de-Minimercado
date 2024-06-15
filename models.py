@@ -27,3 +27,13 @@ class Producto(Base):
     precio = Column(Float)
     descripcion = Column(Text)
     stock = Column(Integer, nullable=False)
+
+
+#CLIENTE
+class Cliente(Base):
+    __tablename__="cliente"
+    id = Column(Integer, primary_key=True, index=True)
+    nombre = Column(String(50))
+    direccion = Column(String(50))
+    telefono = Column(String(10))
+    email = Column(String(50))
