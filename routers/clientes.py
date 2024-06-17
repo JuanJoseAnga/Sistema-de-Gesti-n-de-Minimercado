@@ -28,6 +28,8 @@ async def crear_cliente(cliente: schemas.ClienteBase, db: Session = Depends(get_
 async def listar_clientes(db: Session = Depends(get_db)):
     return db.query(models.Cliente).all()
 
+
+
 # Consultar cliente por ID
 @router.get("/consultar_cliente/{id_cliente}", status_code=status.HTTP_200_OK)
 async def consultar_cliente_por_id(id_cliente: int, db: Session = Depends(get_db)):
