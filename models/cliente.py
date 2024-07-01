@@ -8,3 +8,4 @@ class Cliente(Base):
     direccion = Column(String(50))
     telefono = Column(String(10))
     email = Column(String(50))
+

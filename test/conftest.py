@@ -39,3 +39,6 @@ def client():
     
     # Drop the tables in the test database
     Base.metadata.drop_all(bind=engine)
+
+
+
