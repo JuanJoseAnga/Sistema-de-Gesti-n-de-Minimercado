@@ -1,0 +1,6 @@
+projectKey=SISTEMA-GESTION-MINIMERCADO
+serverUrl=http://localhost:9000
+serverVersion=10.6.0.92116
+dashboardUrl=http://localhost:9000/dashboard?id=SISTEMA-GESTION-MINIMERCADO
+ceTaskId=c6c1ddfa-49fe-43da-99a8-a6c567cf923b
+ceTaskUrl=http://localhost:9000/api/ce/task?id=c6c1ddfa-49fe-43da-99a8-a6c567cf923b
