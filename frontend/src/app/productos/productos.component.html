@@ -1,0 +1,73 @@
+<div class="content">
+    <!-- Botones para mostrar formularios -->
+    <button (click)="toggleForm('registerForm')">Registrar Producto</button>
+    <button (click)="toggleForm('consultForm')">Consultar Producto</button>
+    <button (click)="toggleForm('listForm')">Listar Productos</button>
+    <button (click)="toggleForm('deleteForm')">Eliminar Producto</button>
+    <button (click)="toggleForm('updateForm')">Actualizar Producto</button>
+
+    <!-- Formulario para registrar producto -->
+    <form *ngIf="showRegisterForm" [formGroup]="registerForm" (ngSubmit)="onRegisterSubmit()">
+        <h2>Registrar Producto</h2>
+        <label for="registerName">Nombre:</label>
+        <input type="text" id="registerName" formControlName="registerName" required>
+        <label for="registerPrice">Precio:</label>
+        <input type="number" id="registerPrice" formControlName="registerPrice" required>
+        <label for="registerDescription">Descripción:</label>
+        <textarea id="registerDescription" formControlName="registerDescription" required></textarea>
+        <label for="registerStock">Stock:</label>
+        <input type="number" id="registerStock" formControlName="registerStock" required>
+        <button type="submit">Registrar</button>
+    </form>
+
+    <!-- Formulario para consultar producto por ID -->
+    <form *ngIf="showConsultForm" [formGroup]="consultForm" (ngSubmit)="onConsultSubmit()">
+        <h2>Consultar Producto por ID</h2>
+        <label for="consultId">ID:</label>
+        <input type="number" id="consultId" formControlName="consultId" required>
+        <button type="submit">Consultar</button>
+    </form>
+
+    <!-- Formulario para listar productos -->
+    <div *ngIf="showListForm" class="form">
+        <h2>Listar Productos</h2>
+        <table id="productsTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Precio</th>
+                    <th>Descripción</th>
+                    <th>Stock</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Aquí se llenarán los productos -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Formulario para eliminar producto por ID -->
+    <form *ngIf="showDeleteForm" [formGroup]="deleteForm" (ngSubmit)="onDeleteSubmit()">
+        <h2>Eliminar Producto por ID</h2>
+        <label for="deleteId">ID:</label>
+        <input type="number" id="deleteId" formControlName="deleteId" required>
+        <button type="submit">Eliminar</button>
+    </form>
+
+    <!-- Formulario para actualizar producto por ID -->
+    <form *ngIf="showUpdateForm" [formGroup]="updateForm" (ngSubmit)="onUpdateSubmit()">
+        <h2>Actualizar Producto por ID</h2>
+        <label for="updateId">ID:</label>
+        <input type="number" id="updateId" formControlName="updateId" required>
+        <label for="updateName">Nombre:</label>
+        <input type="text" id="updateName" formControlName="updateName">
+        <label for="updatePrice">Precio:</label>
+        <input type="number" id="updatePrice" formControlName="updatePrice">
+        <label for="updateDescription">Descripción:</label>
+        <textarea id="updateDescription" formControlName="updateDescription"></textarea>
+        <label for="updateStock">Stock:</label>
+        <input type="number" id="updateStock" formControlName="updateStock">
+        <button type="submit">Actualizar</button>
+    </form>
+</div>
