@@ -21,12 +21,9 @@ def create_app():
 
     return app
 
-
+# Crea la instancia de la aplicación
+app = create_app()
 
 if __name__ == "__main__":
-    # Crea la instancia de la aplicación
-    app = create_app()
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
-
-
