@@ -28,6 +28,16 @@
         <button type="submit">Consultar</button>
     </form>
 
+    <!-- Mostrar detalles del producto consultado -->
+    <div *ngIf="productoConsultado">
+        <h2>Detalles del Producto</h2>
+        <p><strong>ID:</strong> {{ productoConsultado.id }}</p>
+        <p><strong>Nombre:</strong> {{ productoConsultado.nombre }}</p>
+        <p><strong>Precio:</strong> {{ productoConsultado.precio }}</p>
+        <p><strong>Descripción:</strong> {{ productoConsultado.descripcion }}</p>
+        <p><strong>Stock:</strong> {{ productoConsultado.stock }}</p>
+    </div>
+
     <!-- Formulario para listar productos -->
     <div *ngIf="showListForm" class="form">
         <h2>Listar Productos</h2>
@@ -42,7 +52,13 @@
                 </tr>
             </thead>
             <tbody>
-                <!-- Aquí se llenarán los productos -->
+                <tr *ngFor="let producto of productos">
+                    <td>{{ producto.id }}</td>
+                    <td>{{ producto.nombre }}</td>
+                    <td>{{ producto.precio }}</td>
+                    <td>{{ producto.descripcion }}</td>
+                    <td>{{ producto.stock }}</td>
+                </tr>
             </tbody>
         </table>
     </div>

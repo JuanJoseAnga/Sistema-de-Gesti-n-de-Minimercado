@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from routers import usuarios, proveedores, productos, clientes
 from database import engine, Base
 
@@ -11,6 +12,15 @@ def create_app():
         title="API de Gestión",
         description="API para la gestión de usuarios, proveedores, productos y clientes.",
         version="1.0.0",
+    )
+
+    # Configura el middleware CORS
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["http://localhost:4200"],  # Origen del frontend Angular
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
     )
 
     # Incluye los routers correspondientes
