@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 import schemas.usuario as schemas
-import models.usuario as models
+#import models.usuario as models
 from database import SessionLocal, engine
 from utils import get_password_hash
 from typing import List
@@ -14,59 +14,59 @@ def get_db():
     finally:
         db.close()
 
-@router.post("/registro/", status_code=status.HTTP_201_CREATED)
-async def crear_registro(registro: schemas.IngresoBase, db: Session = Depends(get_db)):
-    hashed_password = get_password_hash(registro.password)
-    db_registro = models.Ingreso(
-        nombre=registro.nombre,
-        mail=registro.mail,
+@router.post("/crear_usuario/", status_code=status.HTTP_201_CREATED)
+async def crear_usuario(usuario: schemas.IngresoBase, db: Session = Depends(get_db)):
+    hashed_password = get_password_hash(usuario.password)
+    db_usuario = models.Ingreso(
+        nombre=usuario.nombre,
+        mail=usuario.mail,
         password=hashed_password,
-        cargo=registro.cargo
+        cargo=usuario.cargo
     )
-    db.add(db_registro)
+    db.add(db_usuario)
     db.commit()
-    db.refresh(db_registro)
-    return {"message": "El registro se realizó exitosamente"}
+    db.refresh(db_usuario)
+    return {"message": "El usuario se realizó exitosamente"}
 
-# Función para obtener un registro por su ID
-@router.get("/registro/{registro_id}", response_model=schemas.IngresoBase)
-async def consultar_registro(registro_id: int, db: Session = Depends(get_db)):
-    registro = db.query(models.Ingreso).filter(models.Ingreso.id == registro_id).first()
-    if registro is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Registro no encontrado")
-    return registro
+# Función para obtener un usuario por su ID
+@router.get("/consultar_usuario/{usuario_id}", response_model=schemas.IngresoBase)
+async def consultar_usuario(usuario_id: int, db: Session = Depends(get_db)):
+    usuario = db.query(models.Ingreso).filter(models.Ingreso.id == usuario_id).first()
+    if usuario is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="usuario no encontrado")
+    return usuario
 
-# Función para listar todos los registros
-@router.get("/registro/", response_model=List[schemas.IngresoBase])
-async def listar_registros(db: Session = Depends(get_db)):
+# Función para listar todos los usuarios
+@router.get("/listado_usuarios/", response_model=List[schemas.IngresoBase])
+async def listar_usuarios(db: Session = Depends(get_db)):
     return db.query(models.Ingreso).all()
 
-# Función para eliminar un registro por su ID
-@router.delete("/registro/{registro_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def eliminar_registro(registro_id: int, db: Session = Depends(get_db)):
-    registro = db.query(models.Ingreso).filter(models.Ingreso.id == registro_id).first()
-    if registro is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Registro no encontrado")
-    db.delete(registro)
+# Función para eliminar un usuario por su ID
+@router.delete("/eliminar_usuario/{usuario_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def eliminar_usuario(usuario_id: int, db: Session = Depends(get_db)):
+    usuario = db.query(models.Ingreso).filter(models.Ingreso.id == usuario_id).first()
+    if usuario is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="usuario no encontrado")
+    db.delete(usuario)
     db.commit()
     return None
 
-# Función para actualizar un registro por su ID
-@router.put("/registro/{registro_id}", response_model=schemas.IngresoBase)
-async def actualizar_registro(registro_id: int, registro: schemas.IngresoBase, db: Session = Depends(get_db)):
-    db_registro = db.query(models.Ingreso).filter(models.Ingreso.id == registro_id).first()
-    if db_registro is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Registro no encontrado")
+# Función para actualizar un usuario por su ID
+@router.put("/actualizar_usuario/{usuario_id}", response_model=schemas.IngresoBase)
+async def actualizar_usuario(usuario_id: int, usuario: schemas.IngresoBase, db: Session = Depends(get_db)):
+    db_usuario = db.query(models.Ingreso).filter(models.Ingreso.id == usuario_id).first()
+    if db_usuario is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="usuario no encontrado")
     
-    db_registro.nombre = registro.nombre
-    db_registro.mail = registro.mail
-    db_registro.cargo = registro.cargo
+    db_usuario.nombre = usuario.nombre
+    db_usuario.mail = usuario.mail
+    db_usuario.cargo = usuario.cargo
     
     # Si se proporciona una nueva contraseña, se debe hashear
-    if registro.password:
-        hashed_password = get_password_hash(registro.password)
-        db_registro.password = hashed_password
+    if usuario.password:
+        hashed_password = get_password_hash(usuario.password)
+        db_usuario.password = hashed_password
     
     db.commit()
-    db.refresh(db_registro)
-    return db_registro
+    db.refresh(db_usuario)
+    return db_usuario
