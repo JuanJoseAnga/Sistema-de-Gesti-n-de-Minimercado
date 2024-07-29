@@ -1,20 +1,13 @@
 from pydantic import BaseModel
 
-class IngresoBase(BaseModel):
+class UsuarioBase(BaseModel):
     nombre: str
     mail: str
     password: str
     cargo: str
-
-class IngresoBase2(BaseModel):
+class UsuarioInDB(UsuarioBase):
     id: int
-    nombre: str
-    mail: str
-    password: str
-    cargo: str
+    class Config:
+        orm_mode = True
 
-class IngresoUpdate(BaseModel):
-    nombre: str
-    mail: str
-    password: str
-    cargo: str
+

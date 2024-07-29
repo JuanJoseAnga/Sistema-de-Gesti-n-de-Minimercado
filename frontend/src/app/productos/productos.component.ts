@@ -13,10 +13,10 @@ import { HttpClientModule } from '@angular/common/http'; // Importa HttpClientMo
 })
 export class ProductosComponent implements OnInit {
   showRegisterForm = false;
-  showConsultForm = false;
-  showListForm = false;
-  showDeleteForm = false;
   showUpdateForm = false;
+  showListForm = true; // Inicialmente mostramos la lista de clientes
+  showConsultForm = false; // Estado para mostrar el formulario de consulta
+  showClearButton = false; // Estado para mostrar el botón de limpieza
 
   registerForm: FormGroup;
   consultForm: FormGroup;
@@ -55,15 +55,33 @@ export class ProductosComponent implements OnInit {
     this.showRegisterForm = formId === 'registerForm';
     this.showConsultForm = formId === 'consultForm';
     this.showListForm = formId === 'listForm';
-    this.showDeleteForm = formId === 'deleteForm';
     this.showUpdateForm = formId === 'updateForm';
 
-    // Limpia el producto consultado si se cambia de formulario
+    // Oculta la lista de clientes cuando se muestra el formulario de registro o actualización
+    if (formId === 'registerForm' || formId === 'updateForm') {
+      this.productos = [];
+    }
+
+    // Limpia el Cliente consultado si se cambia de formulario
     if (formId !== 'consultForm') {
       this.productoConsultado = null;
     }
   }
+  showAllProducts(): void {
+    this.listarProductos(); // Vuelve a listar todos los clientes
+    this.toggleForm('listForm'); // Muestra la lista de clientes
+    this.showClearButton = false; // Oculta el botón de limpieza
+  }
 
+  toggleClearButton(): void {
+    this.showClearButton = this.consultForm.value.consultId.length > 0;
+  }
+
+  clearInput(): void {
+    this.consultForm.patchValue({ consultId: '' });
+    this.showClearButton = false;
+    this.listarProductos(); // Vuelve a listar todos los clientes
+  }
   onRegisterSubmit(): void {
     const producto = {
       nombre: this.registerForm.get('registerName')?.value,
@@ -71,9 +89,9 @@ export class ProductosComponent implements OnInit {
       descripcion: this.registerForm.get('registerDescription')?.value,
       stock: this.registerForm.get('registerStock')?.value
     };
-    this.productoService.crearProducto(producto).subscribe(response => {
+    this.productoService.crearProducto(producto).subscribe(() => {
       alert('Producto registrado');
-      this.listarProductos();
+      this.showAllProducts();
     });
   }
 
@@ -81,18 +99,33 @@ export class ProductosComponent implements OnInit {
     const id = this.consultForm.value.consultId;
     this.productoService.consultarProducto(id).subscribe(producto => {
       this.productoConsultado = producto; // Actualiza el producto consultado
+      // Mostrar solo el cliente consultado en la tabla
+      this.productos = [producto];
+      this.showConsultForm = true;
       alert('Producto consultado');
+      this.toggleClearButton(); // Muestra el botón de limpieza si hay texto en el input
     });
   }
 
-  onDeleteSubmit(): void {
-    const id = this.deleteForm.value.deleteId;
-    this.productoService.eliminarProducto(id).subscribe(response => {
-      alert('Producto eliminado');
-      this.listarProductos();
+  onDeleteSubmit(id: number): void {
+    if (confirm('¿Está seguro de que desea eliminar este cliente?')) {
+      this.productoService.eliminarProducto(id).subscribe(() => {
+        this.productos = this.productos.filter(producto => producto.id !== id);
+      });
+    }
+  }
+  update(productoId: number): void {
+    this.productoService.consultarProducto(productoId).subscribe(producto => {
+      this.updateForm.patchValue({
+        updateId: producto.id,
+        updateName: producto.nombre,
+        updatePrice: producto.precio,
+        updateDescription: producto.descripcion,
+        updateStock: producto.stock
+      });
+      this.toggleForm('updateForm');
     });
   }
-
   onUpdateSubmit(): void {
     const id = this.updateForm.value.updateId;
     const producto = {
@@ -101,9 +134,9 @@ export class ProductosComponent implements OnInit {
       descripcion: this.updateForm.value.updateDescription,
       stock: this.updateForm.value.updateStock
     };
-    this.productoService.actualizarProducto(id, producto).subscribe(response => {
+    this.productoService.actualizarProducto(id, producto).subscribe(() => {
       alert('Producto actualizado');
-      this.listarProductos();
+      this.showAllProducts(); // Muestra la lista de clientes después de actualizar
     });
   }
 

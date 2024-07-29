@@ -12,7 +12,7 @@ export class UsuarioService {
 
   // Crear usuario
   crearusuario(usuario: any): Observable<any> {
-    return this.http.post(`${this.baseUrl}/registro_usuario/`, usuario);
+    return this.http.post(`${this.baseUrl}/crear_usuario/`, usuario);
   }
 
   // Listar usuarios

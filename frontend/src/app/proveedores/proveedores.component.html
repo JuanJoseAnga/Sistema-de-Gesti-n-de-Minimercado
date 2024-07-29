@@ -1,0 +1,76 @@
+<div class="content">
+    <!-- Formulario para registrar Proveedor -->
+    <form *ngIf="showRegisterForm" [formGroup]="registerForm" (ngSubmit)="onRegisterSubmit()">
+        <h2>Registrar Proveedor</h2>
+        <label for="registerName">Nombre:</label>
+        <input type="text" id="registerName" formControlName="registerName" required>
+        <label for="registerContact">Contacto:</label>
+        <input type="texto" id="registerContact" formControlName="registerContact" required>
+        <label for="registerProducts">Productos:</label>
+        <textarea id="registerProducts" formControlName="registerProducts" required></textarea>
+        <label for="registerCond">Condiciones de pago:</label>
+        <input type="text" id="registerCond" formControlName="registerCond" required>
+        <br>
+        <button type="submit">Registrar</button>
+    </form>
+
+    <!-- Formulario para listar Clientes -->
+    <div *ngIf="showListForm" class="form">
+        <h2>Proveedores</h2>
+        <form [formGroup]="consultForm" (ngSubmit)="onConsultSubmit()">
+            <label for="consultId">ID:</label>
+            <input type="text" id="consultId" formControlName="consultId" required>
+            <a *ngIf="showConsultForm" (click)="showAllProveedores()" class="clear-btn">×</a>
+            <br >
+            <div class="button-container">
+                <button type="submit">Buscar</button>
+                <button (click)="toggleForm('registerForm')">Agregar Proveedor</button>
+            </div>         
+        </form>
+        <table *ngIf="proveedores.length > 0" id="productsTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Contacto</th>
+                    <th>Productos</th>
+                    <th>Condiciones de pago</th>
+                    <th>Accion</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let proveedor of proveedores">
+                    <td>{{ proveedor.ID }}</td>
+                    <td>{{ proveedor.nombre }}</td>
+                    <td>{{ proveedor.contacto }}</td>
+                    <td>{{ proveedor.productos }}</td>
+                    <td>{{ proveedor.condiciones_pago }}</td>
+                    <td>
+                        <div class="button-container">
+                            <button (click)="onDeleteSubmit(proveedor.ID)">Eliminar</button>
+                            <button (click)="update(proveedor.ID)">Actualizar</button>
+                        </div>
+                    
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Formulario para actualizar proveedor por ID -->
+    <form *ngIf="showUpdateForm" [formGroup]="updateForm" (ngSubmit)="onUpdateSubmit()">
+        <h2>Actualizar proveedor por ID</h2>
+        <label for="updateId">ID:</label>
+        <input type="number" id="updateId" formControlName="updateId" readonly>
+        <label for="updateName">Nombre:</label>
+        <input type="text" id="updateName" formControlName="updateName">
+        <label for="updateContact">Contacto:</label>
+        <input type="text" id="updateContact" formControlName="updateContact">
+        <label for="updateProducts">Productos:</label>
+        <textarea id="updateProducts" formControlName="updateProducts"></textarea>
+        <label for="updateCond">Condiciones de pago:</label>
+        <input type="text" id="updateCond" formControlName="updateCond">
+        <br>
+        <button type="submit">Actualizar</button>
+    </form>
+</div>

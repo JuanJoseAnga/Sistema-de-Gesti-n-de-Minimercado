@@ -20,7 +20,8 @@ async def crear_proveedor(proveedor: schemas.ProveedorBase, db: Session = Depend
     db_proveedor = models.Ingreso_proveedor(**proveedor.dict())
     db.add(db_proveedor)
     db.commit()
-    return {"detail": "El proveedor se registró exitosamente"}
+    db.refresh(db_proveedor)
+    return db_proveedor
 
 # Listar todos los proveedores
 @router.get("/listado_proveedores/", status_code=status.HTTP_200_OK)
@@ -31,7 +32,7 @@ async def listar_proveedores(db: Session = Depends(get_db)):
 @router.get("/consultar_proveedor/{id_proveedor}", status_code=status.HTTP_200_OK)
 async def consultar_proveedor_por_id(id_proveedor: int, db: Session = Depends(get_db)):
     proveedor = db.query(models.Ingreso_proveedor).filter(models.Ingreso_proveedor.ID == id_proveedor).first()
-    if not proveedor:
+    if proveedor is None: 
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Proveedor no encontrado")
     return proveedor
 
@@ -43,11 +44,11 @@ async def eliminar_proveedor_por_id(id_proveedor: int, db: Session = Depends(get
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Proveedor no encontrado")
     db.delete(proveedor)
     db.commit()
-    return {"detail": "Proveedor eliminado exitosamente"}
+    return None
 
 # Actualizar proveedor por ID
-@router.put("/actualizar_proveedor/{id_proveedor}", status_code=status.HTTP_200_OK)
-async def actualizar_proveedor_por_id(id_proveedor: int, proveedor_update: schemas.ProveedorUpdate, db: Session = Depends(get_db)):
+@router.put("/actualizar_proveedor/{id_proveedor}",response_model=schemas.ProveedorInDB,status_code=status.HTTP_200_OK)
+async def actualizar_proveedor_por_id(id_proveedor: int, proveedor_update: schemas.ProveedorBase, db: Session = Depends(get_db)):
     proveedor = db.query(models.Ingreso_proveedor).filter(models.Ingreso_proveedor.ID == id_proveedor).first()
     if not proveedor:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Proveedor no encontrado")

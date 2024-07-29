@@ -1,11 +1,4 @@
 <div class="content">
-    <!-- Botones para mostrar formularios -->
-    <button (click)="toggleForm('registerForm')">Registrar usuario</button>
-    <button (click)="toggleForm('consultForm')">Consultar usuario</button>
-    <button (click)="toggleForm('listForm')">Listar usuarios</button>
-    <button (click)="toggleForm('deleteForm')">Eliminar usuario</button>
-    <button (click)="toggleForm('updateForm')">Actualizar usuario</button>
-
     <!-- Formulario para registrar usuario -->
     <form *ngIf="showRegisterForm" [formGroup]="registerForm" (ngSubmit)="onRegisterSubmit()">
         <h2>Registrar usuario</h2>
@@ -17,36 +10,30 @@
         <input type="password" id="registerPassword" formControlName="registerPassword" required>
         <label for="registerCargo">Cargo:</label>
         <input type="text" id="registerCargo" formControlName="registerCargo" required>
+        <br>
         <button type="submit">Registrar</button>
     </form>
-
-    <!-- Formulario para consultar usuario por ID -->
-    <form *ngIf="showConsultForm" [formGroup]="consultForm" (ngSubmit)="onConsultSubmit()">
-        <h2>Consultar usuario por ID</h2>
-        <label for="consultId">ID:</label>
-        <input type="number" id="consultId" formControlName="consultId" required>
-        <button type="submit">Consultar</button>
-    </form>
-
-    <!-- Mostrar detalles del usuario consultado -->
-    <div *ngIf="usuarioConsultado">
-        <h2>Detalles del usuario</h2>
-        <p><strong>ID:</strong> {{ usuarioConsultado.id }}</p>
-        <p><strong>Nombre:</strong> {{ usuarioConsultado.nombre }}</p>
-        <p><strong>Email:</strong> {{ usuarioConsultado.mail }}</p>
-        <p><strong>Cargo:</strong> {{ usuarioConsultado.cargo }}</p>
-    </div>
-
     <!-- Formulario para listar usuarios -->
     <div *ngIf="showListForm" class="form">
-        <h2>Listar usuarios</h2>
-        <table id="productsTable">
+        <h2>Usuarios</h2>
+        <form [formGroup]="consultForm" (ngSubmit)="onConsultSubmit()">
+            <label for="consultId">ID:</label>
+            <input type="text" id="consultId" formControlName="consultId" required>
+            <a *ngIf="showConsultForm" (click)="showAllUsers()" class="clear-btn">×</a>
+            <br >
+            <div class="button-container">
+                <button type="submit">Buscar</button>
+                <button (click)="toggleForm('registerForm')">Agregar Usuario</button>
+            </div>
+        </form>
+        <table *ngIf="usuarios.length > 0" id="productsTable">
             <thead>
                 <tr>
                     <th>ID</th>
                     <th>Nombre</th>
                     <th>Email</th>
                     <th>Cargo</th>
+                    <th>Accion</th>
                 </tr>
             </thead>
             <tbody>
@@ -55,20 +42,17 @@
                     <td>{{ usuario.nombre }}</td>
                     <td>{{ usuario.mail }}</td>
                     <td>{{ usuario.cargo }}</td>
+                    <td>
+                        <div class="button-container">
+                            <button (click)="onDeleteSubmit(usuario.id)">Eliminar</button>
+                            <button (click)="update(usuario.id)">Actualizar</button>
+                        </div>
+                    </td>
 
                 </tr>
             </tbody>
         </table>
     </div>
-
-    <!-- Formulario para eliminar usuario por ID -->
-    <form *ngIf="showDeleteForm" [formGroup]="deleteForm" (ngSubmit)="onDeleteSubmit()">
-        <h2>Eliminar usuario por ID</h2>
-        <label for="deleteId">ID:</label>
-        <input type="number" id="deleteId" formControlName="deleteId" required>
-        <button type="submit">Eliminar</button>
-    </form>
-
     <!-- Formulario para actualizar usuario por ID -->
     <form *ngIf="showUpdateForm" [formGroup]="updateForm" (ngSubmit)="onUpdateSubmit()">
         <h2>Actualizar usuario por ID</h2>
@@ -81,7 +65,8 @@
         <label for="updateCargo">Cargo:</label>
         <input type="text" id="updateCargo" formControlName="updateCargo">
         <label for="updatePassword">Contraseña:</label>
-        <input type="number" id="updatePassword" formControlName="updatePassword">
+        <input type="password" id="updatePassword" formControlName="updatePassword">
+        <br>
         <button type="submit">Actualizar</button>
     </form>
 </div>

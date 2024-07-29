@@ -9,14 +9,15 @@ import { HttpClientModule } from '@angular/common/http'; // Importa HttpClientMo
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule,HttpClientModule],
   templateUrl: './clientes.component.html',
-  styleUrl: './clientes.component.css'
+  styleUrls: ['./clientes.component.css']
 })
+
 export class ClientesComponent implements OnInit {
   showRegisterForm = false;
-  showConsultForm = false;
-  showListForm = false;
-  showDeleteForm = false;
   showUpdateForm = false;
+  showListForm = true; // Inicialmente mostramos la lista de clientes
+  showConsultForm = false; // Estado para mostrar el formulario de consulta
+  showClearButton = false; // Estado para mostrar el botón de limpieza
 
   registerForm: FormGroup;
   consultForm: FormGroup;
@@ -53,10 +54,14 @@ export class ClientesComponent implements OnInit {
 
   toggleForm(formId: string): void {
     this.showRegisterForm = formId === 'registerForm';
-    this.showConsultForm = formId === 'consultForm';
-    this.showListForm = formId === 'listForm';
-    this.showDeleteForm = formId === 'deleteForm';
     this.showUpdateForm = formId === 'updateForm';
+    this.showListForm = formId === 'listForm';
+    this.showConsultForm = formId === 'consultForm';
+
+    // Oculta la lista de clientes cuando se muestra el formulario de registro o actualización
+    if (formId === 'registerForm' || formId === 'updateForm') {
+      this.clientes = [];
+    }
 
     // Limpia el Cliente consultado si se cambia de formulario
     if (formId !== 'consultForm') {
@@ -64,47 +69,78 @@ export class ClientesComponent implements OnInit {
     }
   }
 
+  showAllClients(): void {
+    this.listarClientes(); // Vuelve a listar todos los clientes
+    this.toggleForm('listForm'); // Muestra la lista de clientes
+    this.showClearButton = false; // Oculta el botón de limpieza
+  }
+
+  toggleClearButton(): void {
+    this.showClearButton = this.consultForm.value.consultId.length > 0;
+  }
+
+  clearInput(): void {
+    this.consultForm.patchValue({ consultId: '' });
+    this.showClearButton = false;
+    this.listarClientes(); // Vuelve a listar todos los clientes
+  }
+
   onRegisterSubmit(): void {
-    const Cliente = {
+    const cliente = {
       nombre: this.registerForm.get('registerName')?.value,
       email: this.registerForm.get('registerEmail')?.value,
       direccion: this.registerForm.get('registerDirection')?.value,
       telefono: this.registerForm.get('registerTelf')?.value
     };
-    console.log(Cliente)
-    this.clienteService.crearCliente(Cliente).subscribe(response => {
+    this.clienteService.crearCliente(cliente).subscribe(() => {
       alert('Cliente registrado');
-      this.listarClientes();
+      this.showAllClients(); // Muestra la lista de clientes después de registrar
     });
   }
 
   onConsultSubmit(): void {
     const id = this.consultForm.value.consultId;
     this.clienteService.consultarCliente(id).subscribe(cliente => {
-      this.clienteConsultado = cliente; // Actualiza el Cliente consultado
+      this.clienteConsultado = cliente;
+      // Mostrar solo el cliente consultado en la tabla
+      this.clientes = [cliente];
+      this.showConsultForm = true;
       alert('Cliente consultado');
+      this.toggleClearButton(); // Muestra el botón de limpieza si hay texto en el input
     });
   }
 
-  onDeleteSubmit(): void {
-    const id = this.deleteForm.value.deleteId;
-    this.clienteService.eliminarCliente(id).subscribe(response => {
-      alert('Cliente eliminado');
-      this.listarClientes();
+  onDeleteSubmit(id: number): void {
+    if (confirm('¿Está seguro de que desea eliminar este cliente?')) {
+      this.clienteService.eliminarCliente(id).subscribe(() => {
+        this.clientes = this.clientes.filter(cliente => cliente.id !== id);
+      });
+    }
+  }
+
+  update(clientId: number): void {
+    this.clienteService.consultarCliente(clientId).subscribe(cliente => {
+      this.updateForm.patchValue({
+        updateId: cliente.id,
+        updateName: cliente.nombre,
+        updateEmail: cliente.email,
+        updateDirection: cliente.direccion,
+        updateTelf: cliente.telefono
+      });
+      this.toggleForm('updateForm');
     });
   }
 
-  onUpdateSubmit(): void {
-    const id = this.updateForm.value.updateId;
+  onUpdateSubmit(id: number): void {
     const cliente = {
       nombre: this.updateForm.value.updateName,
       email: this.updateForm.value.updateEmail,
       direccion: this.updateForm.value.updateDirection,
       telefono: this.updateForm.value.updateTelf
     };
-    this.clienteService.actualizarCliente(id, cliente).subscribe(response => {
+    this.clienteService.actualizarCliente(id, cliente).subscribe(() => {
       alert('Cliente actualizado');
-      this.listarClientes();
+      this.showAllClients(); // Muestra la lista de clientes después de actualizar
     });
   }
 

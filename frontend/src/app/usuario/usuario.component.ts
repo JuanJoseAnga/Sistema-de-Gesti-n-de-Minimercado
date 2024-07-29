@@ -13,10 +13,10 @@ import { HttpClientModule } from '@angular/common/http'; // Importa HttpClientMo
 })
 export class UsuariosComponent implements OnInit {
   showRegisterForm = false;
-  showConsultForm = false;
-  showListForm = false;
-  showDeleteForm = false;
   showUpdateForm = false;
+  showListForm = true; // Inicialmente mostramos la lista de clientes
+  showConsultForm = false; // Estado para mostrar el formulario de consulta
+  showClearButton = false; // Estado para mostrar el botón de limpieza
 
   registerForm: FormGroup;
   consultForm: FormGroup;
@@ -55,15 +55,32 @@ export class UsuariosComponent implements OnInit {
     this.showRegisterForm = formId === 'registerForm';
     this.showConsultForm = formId === 'consultForm';
     this.showListForm = formId === 'listForm';
-    this.showDeleteForm = formId === 'deleteForm';
     this.showUpdateForm = formId === 'updateForm';
 
-    // Limpia el usuario consultado si se cambia de formulario
+    // Oculta la lista de clientes cuando se muestra el formulario de registro o actualización
+    if (formId === 'registerForm' || formId === 'updateForm') {
+      this.usuarios = [];
+    }
+
+    // Limpia el Cliente consultado si se cambia de formulario
     if (formId !== 'consultForm') {
       this.usuarioConsultado = null;
     }
   }
+  showAllUsers(): void {
+    this.listarusuarios(); // Vuelve a listar todos los clientes
+    this.toggleForm('listForm'); // Muestra la lista de clientes
+    this.showClearButton = false; // Oculta el botón de limpieza
+  }
+  toggleClearButton(): void {
+    this.showClearButton = this.consultForm.value.consultId.length > 0;
+  }
 
+  clearInput(): void {
+    this.consultForm.patchValue({ consultId: '' });
+    this.showClearButton = false;
+    this.listarusuarios(); // Vuelve a listar todos los clientes
+  }
   onRegisterSubmit(): void {
     const usuario = {
       nombre: this.registerForm.get('registerName')?.value,
@@ -73,26 +90,41 @@ export class UsuariosComponent implements OnInit {
     };
     this.usuarioService.crearusuario(usuario).subscribe(response => {
       alert('usuario registrado');
-      this.listarusuarios();
+      this.showAllUsers();
     });
   }
 
   onConsultSubmit(): void {
     const id = this.consultForm.value.consultId;
     this.usuarioService.consultarusuario(id).subscribe(usuario => {
-      this.usuarioConsultado = usuario; // Actualiza el usuario consultado
-      alert('usuario consultado');
+      this.usuarioConsultado = usuario; // Actualiza el producto consultado
+      // Mostrar solo el cliente consultado en la tabla
+      this.usuarios = [usuario];
+      this.showConsultForm = true;
+      alert('Producto consultado');
+      this.toggleClearButton(); // Muestra el botón de limpieza si hay texto en el input
     });
   }
 
-  onDeleteSubmit(): void {
-    const id = this.deleteForm.value.deleteId;
-    this.usuarioService.eliminarusuario(id).subscribe(response => {
-      alert('usuario eliminado');
-      this.listarusuarios();
+  onDeleteSubmit(id: number): void {
+    if (confirm('¿Está seguro de que desea eliminar este cliente?')) {
+      this.usuarioService.eliminarusuario(id).subscribe(() => {
+        this.usuarios = this.usuarios.filter(usuario => usuario.id !== id);
+      });
+    }
+  }
+  update(productoId: number): void {
+    this.usuarioService.consultarusuario(productoId).subscribe(usuario => {
+      this.updateForm.patchValue({
+        updateId: usuario.id,
+        updateName: usuario.nombre,
+        updateMail: usuario.mail,
+        updatePassword: usuario.passsword,
+        updateCargo: usuario.cargo
+      });
+      this.toggleForm('updateForm');
     });
   }
-
   onUpdateSubmit(): void {
     const id = this.updateForm.value.updateId;
     const usuario = {

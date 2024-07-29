@@ -32,7 +32,7 @@ async def listar_productos(db: Session = Depends(get_db)):
 @router.get("/consultar_producto/{id_producto}", response_model=schemas.ProductoInDB, status_code=status.HTTP_200_OK)
 async def consultar_producto_por_id(id_producto: int, db: Session = Depends(get_db)):
     producto = db.query(models.Producto).filter(models.Producto.id == id_producto).first()
-    if not producto:
+    if producto is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Producto no encontrado")
     return producto
 

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 import schemas.usuario as schemas
-#import models.usuario as models
+import models.usuario as models
 from database import SessionLocal, engine
 from utils import get_password_hash
 from typing import List
@@ -15,46 +15,41 @@ def get_db():
         db.close()
 
 @router.post("/crear_usuario/", status_code=status.HTTP_201_CREATED)
-async def crear_usuario(usuario: schemas.IngresoBase, db: Session = Depends(get_db)):
+async def crear_usuario(usuario: schemas.UsuarioBase, db: Session = Depends(get_db)):
     hashed_password = get_password_hash(usuario.password)
-    db_usuario = models.Ingreso(
-        nombre=usuario.nombre,
-        mail=usuario.mail,
-        password=hashed_password,
-        cargo=usuario.cargo
-    )
+    db_usuario = models.Usuario(**usuario.dict())
     db.add(db_usuario)
     db.commit()
     db.refresh(db_usuario)
-    return {"message": "El usuario se realizó exitosamente"}
+    return db_usuario
 
 # Función para obtener un usuario por su ID
-@router.get("/consultar_usuario/{usuario_id}", response_model=schemas.IngresoBase)
-async def consultar_usuario(usuario_id: int, db: Session = Depends(get_db)):
-    usuario = db.query(models.Ingreso).filter(models.Ingreso.id == usuario_id).first()
+@router.get("/consultar_usuario/{id_usuario}",status_code=status.HTTP_200_OK)
+async def consultar_usuario(id_usuario: int, db: Session = Depends(get_db)):
+    usuario = db.query(models.Usuario).filter(models.Usuario.id == id_usuario).first()
     if usuario is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="usuario no encontrado")
     return usuario
 
 # Función para listar todos los usuarios
-@router.get("/listado_usuarios/", response_model=List[schemas.IngresoBase])
+@router.get("/listado_usuarios/", status_code=status.HTTP_200_OK)
 async def listar_usuarios(db: Session = Depends(get_db)):
-    return db.query(models.Ingreso).all()
+    return db.query(models.Usuario).all()
 
 # Función para eliminar un usuario por su ID
-@router.delete("/eliminar_usuario/{usuario_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def eliminar_usuario(usuario_id: int, db: Session = Depends(get_db)):
-    usuario = db.query(models.Ingreso).filter(models.Ingreso.id == usuario_id).first()
-    if usuario is None:
+@router.delete("/eliminar_usuario/{id_usuario}", status_code=status.HTTP_200_OK)
+async def eliminar_usuario(id_usuario: int, db: Session = Depends(get_db)):
+    usuario = db.query(models.Usuario).filter(models.Usuario.id == id_usuario).first()
+    if not usuario:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="usuario no encontrado")
     db.delete(usuario)
     db.commit()
     return None
 
 # Función para actualizar un usuario por su ID
-@router.put("/actualizar_usuario/{usuario_id}", response_model=schemas.IngresoBase)
-async def actualizar_usuario(usuario_id: int, usuario: schemas.IngresoBase, db: Session = Depends(get_db)):
-    db_usuario = db.query(models.Ingreso).filter(models.Ingreso.id == usuario_id).first()
+@router.put("/actualizar_usuario/{id_usuario}", response_model=schemas.UsuarioInDB,status_code=status.HTTP_200_OK)
+async def actualizar_usuario(id_usuario: int, usuario: schemas.UsuarioBase, db: Session = Depends(get_db)):
+    db_usuario = db.query(models.Usuario).filter(models.Usuario.id == id_usuario).first()
     if db_usuario is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="usuario no encontrado")
     

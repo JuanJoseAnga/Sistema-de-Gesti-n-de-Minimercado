@@ -120,7 +120,7 @@ form label {
 
 form input,
 form textarea {
-    width: 100%;
+    width: 50%;
     padding: 8px;
     margin-bottom: 10px;
     border: 1px solid #ccc;
@@ -156,4 +156,26 @@ table th, table td {
 
 table th {
     background-color: #f2f2f2;
+}
+.input-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  
+  .input-container input {
+    padding-right: 30px; /* Espacio para el botón "x" */
+  }
+  
+  .clear-btn {
+    right: 10px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 20px;
+    color: #007bff;
+  }
+  .button-container {
+    display: flex;
+    gap: 10px; /* Espacio entre los botones */
 }
