@@ -101,13 +101,13 @@ export class UsuariosComponent implements OnInit {
       // Mostrar solo el cliente consultado en la tabla
       this.usuarios = [usuario];
       this.showConsultForm = true;
-      alert('Producto consultado');
+      alert('Usuario consultado');
       this.toggleClearButton(); // Muestra el botón de limpieza si hay texto en el input
     });
   }
 
   onDeleteSubmit(id: number): void {
-    if (confirm('¿Está seguro de que desea eliminar este cliente?')) {
+    if (confirm('¿Está seguro de que desea eliminar este usuario?')) {
       this.usuarioService.eliminarusuario(id).subscribe(() => {
         this.usuarios = this.usuarios.filter(usuario => usuario.id !== id);
       });
